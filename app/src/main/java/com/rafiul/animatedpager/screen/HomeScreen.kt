@@ -3,15 +3,26 @@ package com.rafiul.animatedpager.screen
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RenderEffect
@@ -20,7 +31,9 @@ import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.rafiul.animatedpager.model.locationList
 
@@ -77,6 +90,59 @@ fun HomeScreen() {
                     modifier = Modifier.fillMaxSize()
                 )
             }
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .weight(.3f),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val verticalState = rememberPagerState {
+                locationList.count()
+            }
+
+            LaunchedEffect(Unit) {
+                snapshotFlow {
+                    Pair(
+                        pagerStateHorizontal.currentPage,
+                        pagerStateHorizontal.currentPageOffsetFraction
+                    )
+                }.collect { (page, offset) ->
+                    verticalState.scrollToPage(page, offset)
+                }
+            }
+
+            VerticalPager(
+                state = verticalState,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(86.dp),
+                userScrollEnabled = false,
+                horizontalAlignment = Alignment.Start
+            ) { page ->
+                Column(verticalArrangement = Arrangement.Center) {
+                    Text(
+                        text = locationList[page].title,
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Thin,
+                            fontSize = 28.sp
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = locationList[page].subtitle,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    )
+                }
+
+            }
+
         }
     }
 }
